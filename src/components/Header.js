@@ -3,7 +3,7 @@ import { useCart } from "../contexts/cartContext";
 
 export const Header = () => {
   const { cartItems } = useCart();
-  console.log("CART LENGTH", cartItems.length);
+
   return (
     <div className="header">
       <div className="logo-container">
