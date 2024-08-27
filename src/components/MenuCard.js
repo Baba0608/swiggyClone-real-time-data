@@ -1,10 +1,9 @@
+import { useCart } from "../contexts/cartContext";
 import { RATING_SVG } from "../utils/constants";
 import { IMAGE_URL } from "../utils/constants";
 
 const MenuCard = ({ item }) => {
-  const addToCart = () => {
-    // add to cart logic
-  };
+  const { total, addToCart, setTotal } = useCart();
 
   const {
     name,
@@ -15,13 +14,16 @@ const MenuCard = ({ item }) => {
       aggregatedRating: { rating, ratingCountV2 },
     },
   } = item.card.info;
+
+  const cost = price || defaultPrice;
+
   return (
     <div className="menu-item">
       <div>
         <div>
           <b>{name}</b>
         </div>
-        <div>₹{price / 100 || defaultPrice / 100}</div>
+        <div>₹{cost / 100}</div>
         <div className="rating">
           <div className="rating-svg">{RATING_SVG}</div>
           <div>
@@ -32,7 +34,7 @@ const MenuCard = ({ item }) => {
 
       <div className="menu-item-box">
         <div className={`${imageId ? "add-btn-box" : "add-btn-box-no-img"}`}>
-          <button className="add-btn" onClick={addToCart}>
+          <button className="add-btn" onClick={() => addToCart(item.card.info)}>
             ADD
           </button>
         </div>

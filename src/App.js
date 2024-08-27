@@ -1,21 +1,81 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
 import { Header } from "./components/Header";
 import { Body } from "./components/Body";
 import About from "./components/About";
+import Cart from "./components/Cart";
 // import Contact from "./components/Contact";
 import ResDetails from "./components/ResDetails";
 
+import cartContext from "./contexts/cartContext";
+
 const Contact = lazy(() => import("./components/Contact"));
 
-const AppLayout = () => (
-  <div>
-    <Header />
-    <Outlet />
-  </div>
-);
+const AppLayout = () => {
+  const [total, setTotal] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+
+  const addToCart = (item) => {
+    const inCart = (item, cartItems) => {
+      for (let i = 0; i < cartItems.length; i++) {
+        if (item.id === cartItems[i].id) return true;
+      }
+      return false;
+    };
+
+    if (inCart(item, cartItems)) {
+      setCartItems([...cartItems, { ...item }]);
+    } else {
+      setCartItems([...cartItems, { ...item, count: 1 }]);
+    }
+  };
+
+  const deleteFromCart = (item) => {
+    setCartItems((cartItems) =>
+      cartItems.filter((cartItem) => cartItem.id !== item.id)
+    );
+  };
+
+  const updateCartItem = (item, type) => {
+    setCartItems((cartItems) =>
+      cartItems.map((cartItem) => {
+        if (cartItem.id === item.id) {
+          return {
+            ...item,
+            count: type === "inc" ? item.count + 1 : item.count - 1,
+          };
+        } else {
+          return cartItem;
+        }
+      })
+    );
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  return (
+    <cartContext.Provider
+      value={{
+        total,
+        cartItems,
+        setTotal,
+        addToCart,
+        deleteFromCart,
+        updateCartItem,
+        clearCart,
+      }}
+    >
+      <div>
+        <Header />
+        <Outlet />
+      </div>
+    </cartContext.Provider>
+  );
+};
 
 const appRouter = createBrowserRouter([
   {
@@ -41,6 +101,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/restaurant/:resId",
         element: <ResDetails />,
+      },
+      {
+        path: "/cart",
+        element: <Cart />,
       },
     ],
   },
